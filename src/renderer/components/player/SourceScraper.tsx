@@ -318,6 +318,7 @@ export default class SourceScraper extends React.Component {
     opacity: number,
     isPlaying: boolean,
     gridView: boolean,
+    gridCoordinates: Array<number>,
     hasStarted: boolean,
     strobeLayer?: string,
     historyOffset: number,
@@ -376,6 +377,7 @@ export default class SourceScraper extends React.Component {
             isOverlay={this.props.isOverlay}
             isPlaying={this.props.isPlaying}
             gridView={this.props.gridView}
+            gridCoordinates={this.props.gridCoordinates}
             historyOffset={this.props.historyOffset}
             setHistoryOffset={this.props.setHistoryOffset}
             setHistoryPaths={this.props.setHistoryPaths}

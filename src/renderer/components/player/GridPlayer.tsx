@@ -195,7 +195,7 @@ class GridPlayer extends React.Component {
               {this.state.grid.grid.map((row, rowIndex) =>
                 <React.Fragment key={rowIndex}>
                   {row.map((cell, colIndex) => {
-                    if (cell.sceneID) {
+                    if (cell.sceneID != -1) {
                       const scene = this.props.allScenes.find((s) => s.id == cell.sceneID);
                       const newLoaded = this.state.isLoaded;
                       let changed = false;
@@ -226,6 +226,7 @@ class GridPlayer extends React.Component {
                               scene={scene}
                               nextScene={this.nextScene.bind(this, rowIndex, colIndex)}
                               gridView
+                              gridCoordinates={[rowIndex,colIndex]}
                               scenes={this.props.allScenes}
                               sceneGrids={this.props.sceneGrids}
                               theme={this.props.theme}
@@ -245,10 +246,9 @@ class GridPlayer extends React.Component {
                         </div>
                       );
                     } else if (cell.sceneCopy) {
-                      // TODO
-                      return <div/>
+                      return <div key={colIndex} className={clsx("canvas-" + cell.sceneCopy[0] + "-" + cell.sceneCopy[1], cell.mirror && "mirror")}/>
                     } else {
-                      return <div/>
+                      return <div key={colIndex}/>
                     }
                   })}
                 </React.Fragment>

@@ -21,6 +21,7 @@ export default class ImageView extends React.Component {
     fitParent: boolean,
     hasStarted: boolean,
     scene: Scene,
+    gridCoordinates?: Array<number>,
     currentAudio?: Audio,
     timeToNextFrame?: number,
     toggleStrobe?: boolean,
@@ -131,6 +132,15 @@ export default class ImageView extends React.Component {
       this._timeouts.push(setTimeout(drawLoop, 20, v, c, w, h));
     };
 
+    const extraDrawLoop = (v: any, w: number, h: number) => {
+      if (!el || !el.parentElement || parseFloat(el.parentElement.style.opacity) == 0.99 || v.ended || v.paused || this._timeouts == null) return;
+      for (let canvas of document.getElementsByClassName("canvas-" + this.props.scene.id)) {
+        const context = (canvas as HTMLCanvasElement).getContext('2d');
+        context.drawImage(v, 0, 0, w, h);
+      }
+      this._timeouts.push(setTimeout(extraDrawLoop, 20, v, w, h));
+    };
+
     let parentWidth = el.offsetWidth;
     let parentHeight = el.offsetHeight;
     if (this.props.fitParent) {
@@ -182,13 +192,19 @@ export default class ImageView extends React.Component {
         }
         if (type == null) {
           context.drawImage(img, 0, 0, parentWidth, parentHeight);
+          for (let canvas of document.getElementsByClassName("canvas-" + this.props.scene.id)) {
+            const context = (canvas as HTMLCanvasElement).getContext('2d');
+            context.drawImage(img as HTMLImageElement, 0, 0, parentWidth, parentHeight);
+          }
         } else if (type == ST.video) {
           img.onplay = () => {
             videoLoop(img);
             drawLoop(img, context, parentWidth, parentHeight);
+            extraDrawLoop(img, parentWidth, parentHeight);
           };
           if (forceBG) {
             drawLoop(img, context, parentWidth, parentHeight);
+            extraDrawLoop(img, parentWidth, parentHeight);
           }
         }
       }
@@ -251,7 +267,11 @@ export default class ImageView extends React.Component {
       }
       img.playbackRate = img.hasAttribute("speed") ? parseInt(img.getAttribute("speed")) / 10 : 1;
       if (!blur) {
-        img.onplay = () => videoLoop(img);
+        img.onplay = () => {
+          videoLoop(img);
+          console.log("extraDrawLoop")
+          extraDrawLoop(img, parentWidth, parentHeight);
+        }
       }
       if (img.paused) {
         img.play();
@@ -403,6 +423,31 @@ export default class ImageView extends React.Component {
       img.style.height = '100%';
       img.style.marginTop = '0';
       img.style.marginLeft = '0';
+    }
+
+    if (type == null && this.props.gridCoordinates != null) {
+      for (let canvasDiv of document.getElementsByClassName("canvas-" + this.props.gridCoordinates[0] + "-" + this.props.gridCoordinates[1])) {
+        for (let child of canvasDiv.children) {
+          canvasDiv.removeChild(child);
+        }
+        if (img.src.endsWith(".gif")) {
+          const clone: any = img.cloneNode()
+          if (canvasDiv.className.includes("mirror")) {
+            clone.style.transform = 'scaleX(-1)';
+          }
+          canvasDiv.appendChild(clone);
+        } else {
+          const canvas = document.createElement('canvas');
+          canvas.width = canvasDiv.clientWidth;
+          canvas.height = canvasDiv.clientHeight;
+          if (canvasDiv.className.includes("mirror")) {
+            canvas.style.transform = 'scaleX(-1)';
+          }
+          canvasDiv.appendChild(canvas);
+          const context = canvas.getContext('2d');
+          context.drawImage(img as HTMLImageElement, 0, 0, parentWidth, parentHeight);
+        }
+      }
     }
 
     if (!forceBG) {

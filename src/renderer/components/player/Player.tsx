@@ -47,6 +47,7 @@ export default class Player extends React.Component {
     captionScale?: number,
     captionProgramJumpToHack?: ChildCallbackHack,
     gridView?: boolean,
+    gridCoordinates?: Array<number>,
     hasStarted?: boolean,
     tags?: Array<Tag>,
     blacklistFile?(sourceURL: string, fileToBlacklist: string): void,
@@ -428,6 +429,7 @@ export default class Player extends React.Component {
               currentAudio={this.state.currentAudio}
               opacity={1}
               gridView={this.props.gridView}
+              gridCoordinates={this.props.gridCoordinates}
               isPlaying={this.state.isPlaying}
               hasStarted={this.state.hasStarted}
               strobeLayer={this.props.scene.strobe ? this.props.scene.strobeLayer : null}
@@ -484,6 +486,7 @@ export default class Player extends React.Component {
                     currentAudio={this.state.currentAudio}
                     opacity={overlay.opacity / 100}
                     gridView={this.props.gridView}
+                    gridCoordinates={undefined}
                     isOverlay
                     isPlaying={this.state.isPlaying && !this.state.isEmpty}
                     hasStarted={this.state.hasStarted}
